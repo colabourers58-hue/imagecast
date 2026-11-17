@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ImageCast Display</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  body { cursor: none; }
+  body.cursor { cursor: default; }
+  .layer {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; opacity: 0; transition: opacity 350ms ease;
+  }
+  body.fill .layer { object-fit: cover; }
+  .layer.on { opacity: 1; }
+  body.black .layer { opacity: 0 !important; }
+  #hint {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    font: 600 22px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff; text-align: center; padding: 28px 36px; border-radius: 18px;
+    background: rgba(28, 28, 30, .92); cursor: pointer; transition: opacity 200ms;
+  }
+  #hint small { display: block; font-weight: 400; font-size: 15px; color: #aaa; margin-top: 6px; }
+  body.full #hint { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body class="cursor">
+<img class="layer" id="a" alt="">
+<img class="layer" id="b" alt="">
+<div id="hint">Click here to go fullscreen<small>Then pick images from the ImageCast window. Double-click or press F to toggle.</small></div>
+<script>
+const ch = new BroadcastChannel('imagecast');
+const layers = [document.getElementById('a'), document.getElementById('b')];
+let front = 0, token = 0, lastUrl = null;
+
+function show(msg) {
+  const my = ++token;
+  const back = layers[1 - front];
+  let src = msg.src;
+  if (msg.blob) { if (lastUrl) URL.revokeObjectURL(lastUrl); src = lastUrl = URL.createObjectURL(msg.blob); }
+  const tries = [src, msg.fallback].filter(Boolean);
+  const attempt = () => {
+    if (my !== token) return;
+    const next = tries.shift();
+    if (!next) { ch.postMessage({ type: 'error', src: msg.src }); return; }
+    back.onload = () => {
+      if (my !== token) return;
+      back.classList.add('on');
+      layers[front].classList.remove('on');
+      front = 1 - front;
+      ch.postMessage({ type: 'shown', src: msg.src });
+    };
+    back.onerror = attempt;
+    back.src = next;
+  };
+  attempt();
+}
+
+ch.onmessage = (e) => {
+  const m = e.data || {};
+  if (m.type === 'show') show(m);
+  if (m.type === 'fit') document.body.classList.toggle('fill', m.fit === 'fill');
+  if (m.type === 'black') document.body.classList.toggle('black', !!m.on);
+  if (m.type === 'clear') { token++; layers.forEach(l => l.classList.remove('on')); }
+};
+
+function toggleFull() {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(() => {});
+}
+document.getElementById('hint').addEventListener('click', toggleFull);
+document.addEventListener('dblclick', toggleFull);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'f' || e.key === 'F') toggleFull();
+  else ch.postMessage({ type: 'key', key: e.key });
+});
+const syncFull = () => document.body.classList.toggle('full', !!document.fullscreenElement);
+document.addEventListener('fullscreenchange', syncFull);
+syncFull();
+
+let idle;
+document.addEventListener('mousemove', () => {
+  document.body.classList.add('cursor');
+  clearTimeout(idle);
+  idle = setTimeout(() => document.body.classList.remove('cursor'), 2000);
+});
+
+ch.postMessage({ type: 'hello' });
+setInterval(() => ch.postMessage({ type: 'ping', full: !!document.fullscreenElement }), 1500);
+window.addEventListener('beforeunload', () => ch.postMessage({ type: 'bye' }));
+</script>
+</body>
+</html>

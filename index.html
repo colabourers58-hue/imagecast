@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ImageCast</title>
+<meta name="description" content="Search images from everywhere and put them fullscreen on a second screen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="mark" aria-hidden="true"></span>ImageCast</div>
+  <form id="search" class="search" autocomplete="off">
+    <input id="q" type="search" placeholder="Search for anything, or paste an image link" aria-label="Search images" autofocus>
+    <button type="submit" class="btn primary">Search</button>
+  </form>
+  <div class="actions">
+    <button id="keysBtn" class="btn ghost" type="button">Sources</button>
+    <button id="openDisplay" class="btn screen" type="button"><span id="dot" class="dot"></span><span id="displayLabel">Open display</span></button>
+  </div>
+</header>
+
+<nav id="chips" class="chips" aria-label="Filter by source"></nav>
+
+<main class="layout">
+  <section class="results">
+    <div id="empty" class="empty">
+      <h1>Find an image. Put it on the big screen.</h1>
+      <ol>
+        <li>Click <b>Open display</b>. A window opens on your HDMI screen. Click it once to go fullscreen.</li>
+        <li>Search for anything. Click a picture and it appears on the big screen.</li>
+        <li>Use the arrow keys to step through results. <b>B</b> blacks out the screen.</li>
+      </ol>
+      <p class="muted">Found something on Google Images or anywhere else? Drag the picture into this window, or copy it and press <kbd>⌘V</kbd> / <kbd>Ctrl+V</kbd>.</p>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div id="more" class="more" hidden><button id="moreBtn" class="btn ghost" type="button">Load more</button></div>
+  </section>
+
+  <aside class="panel">
+    <div class="label">On screen</div>
+    <div id="preview" class="preview"><img id="previewImg" alt=""><span id="previewEmpty">Nothing yet</span></div>
+    <div id="caption" class="caption"></div>
+    <div class="controls">
+      <button id="prev" class="btn ghost" type="button" title="Previous (←)">‹ Prev</button>
+      <button id="next" class="btn ghost" type="button" title="Next (→)">Next ›</button>
+      <button id="fitBtn" class="btn ghost" type="button" title="Fit whole image or fill the screen">Fit</button>
+      <button id="blackBtn" class="btn ghost" type="button" title="Blackout (B)">Blackout</button>
+    </div>
+    <button id="hereBtn" class="btn ghost wide" type="button">Fullscreen on this screen</button>
+    <p id="displayHelp" class="muted small">No display open. Click <b>Open display</b>, or drag that window onto the HDMI screen yourself.</p>
+  </aside>
+</main>
+
+<div id="drop" class="drop" hidden><div>Drop to put it on screen</div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<dialog id="keys">
+  <form method="dialog" class="keysForm">
+    <h2>Sources</h2>
+    <p class="muted">Openverse (millions of Flickr and museum photos), Wikimedia Commons and NASA work straight away. The others need a free key from each site. Keys stay in this browser only.</p>
+    <label>Unsplash access key <a href="https://unsplash.com/oauth/applications/new" target="_blank" rel="noopener">get one</a>
+      <input name="unsplash" type="password" autocomplete="off" spellcheck="false"></label>
+    <label>Pexels API key <a href="https://www.pexels.com/api/new/" target="_blank" rel="noopener">get one</a>
+      <input name="pexels" type="password" autocomplete="off" spellcheck="false"></label>
+    <label>Pixabay API key <a href="https://pixabay.com/api/docs/#api_search_images" target="_blank" rel="noopener">get one</a>
+      <input name="pixabay" type="password" autocomplete="off" spellcheck="false"></label>
+    <p class="muted small">For Google: the <b>Google Images ↗</b> chip opens your search there. Drag any picture back into ImageCast to show it.</p>
+    <div class="row">
+      <button value="cancel" class="btn ghost" type="submit">Cancel</button>
+      <button value="save" class="btn primary" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="sources.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
