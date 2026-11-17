@@ -14,6 +14,6 @@ If your screens are mirrored, use **Fullscreen on this screen** instead.
 ## Sources
 - Work straight away: Openverse (Flickr and museum collections), Wikimedia Commons, NASA.
 - Need a free key (click **Sources**): Unsplash, Pexels, Pixabay.
-- Google: the **Google Images ↗** button opens your search on Google. Drag any picture back into ImageCast, or copy it and paste with Cmd/Ctrl+V.
+- Google, Bing, DuckDuckGo: the **↗** buttons open your search on that site. Drag any picture back into ImageCast, or copy it and paste with Cmd/Ctrl+V.
 
 You can also drop in image files from your computer or paste an image link into the search box.

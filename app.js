@@ -49,13 +49,20 @@ function renderChips() {
     if (p?.error) { chip(s.id, s.name, '!', 'err').title = `${s.name}: ${p.error}`; continue; }
     chip(s.id, s.name, query && p ? p.count : '');
   }
-  const g = document.createElement('a');
-  g.className = 'chip';
-  g.target = '_blank'; g.rel = 'noopener';
-  g.href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}`;
-  g.textContent = 'Google Images ↗';
-  g.title = 'Opens Google Images. Drag any picture back into this window to show it.';
-  c.appendChild(g);
+  const q = encodeURIComponent(query);
+  for (const [name, url] of [
+    ['Google Images', `https://www.google.com/search?tbm=isch&q=${q}`],
+    ['Bing Images', `https://www.bing.com/images/search?q=${q}`],
+    ['DuckDuckGo', `https://duckduckgo.com/?ia=images&iax=images&q=${q}`],
+  ]) {
+    const g = document.createElement('a');
+    g.className = 'chip';
+    g.target = '_blank'; g.rel = 'noopener';
+    g.href = url;
+    g.textContent = `${name} ↗`;
+    g.title = `Opens ${name}. Drag any picture back into this window to show it.`;
+    c.appendChild(g);
+  }
 }
 
 // ---------- search ----------
@@ -229,7 +236,10 @@ function send() {
 function castUrl(url) {
   try {
     const u = new URL(url);
-    if (u.hostname.includes('google.') && u.searchParams.get('imgurl')) url = u.searchParams.get('imgurl');
+    const p = u.searchParams;
+    if (p.get('imgurl')) url = p.get('imgurl');           // Google
+    else if (p.get('mediaurl')) url = p.get('mediaurl');  // Bing
+    else if (u.hostname.includes('duckduckgo.') && p.get('u')) url = p.get('u'); // DuckDuckGo proxy
   } catch {}
   cast({ full: url, fallback: null, title: 'Dropped image', credit: url.startsWith('data:') ? '' : new URL(url).hostname, link: url.startsWith('data:') ? null : url });
 }
